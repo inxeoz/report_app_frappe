@@ -13,9 +13,9 @@ IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 
 
 
-class IntegrationTestCustomReport(IntegrationTestCase):
+class IntegrationTestAirbnbData(IntegrationTestCase):
 	"""
-	Integration tests for CustomReport.
+	Integration tests for AirbnbData.
 	Use this class for testing interactions between multiple components.
 	"""
 
