@@ -1,13 +1,15 @@
-// Copyright (c) 2025, inxeoz and contributors
-// For license information, please see license.txt
-
 frappe.query_reports["Mongodb Room Prices"] = {
-	filters: [
-		// {
-		// 	"fieldname": "my_filter",
-		// 	"label": __("My Filter"),
-		// 	"fieldtype": "Data",
-		// 	"reqd": 1,
-		// },
-	],
+	after_datatable_render: function (report) {
+		// Remove previous title if exists
+		if (report.$custom_title) {
+			report.$custom_title.remove();
+		}
+
+		// Only show the custom title
+		report.$custom_title = $(
+			`<div style="margin-top: 30px; font-size: 18px; font-weight: bold; text-align: center;">
+				THIS IS DEMO TITLE
+			</div>`
+		).appendTo(report.page.wrapper);
+	}
 };
