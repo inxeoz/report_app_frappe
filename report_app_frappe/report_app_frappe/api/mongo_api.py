@@ -1,18 +1,37 @@
+# my_app/api/mongo_chart.py
 import frappe
 from pymongo import MongoClient
 
 @frappe.whitelist()
-def get_room_type_distribution():
+def get_mongo_chart_data():
     client = MongoClient("mongodb://localhost:27017/")
     db = client["sample_airbnb"]
     collection = db["listingsAndReviews"]
 
+    # Example: average price per neighborhood
     pipeline = [
-        {"$group": {"_id": "$room_type", "count": {"$sum": 1}}},
-        {"$sort": {"count": -1}}
+        {
+            "$group": {
+                "_id": "$address.suburb",  # or use address.neighbourhood or address.country
+                "average_price": {"$avg": {"$toDouble": "$price"}}
+            }
+        },
+        {"$sort": {"average_price": -1}},
+        {"$limit": 6}  # Show top 6 for clarity
     ]
 
-    data = list(collection.aggregate(pipeline))
-    
-    # Format to: [{"room_type": "Entire home/apt", "count": 456}, ...]
-    return [{"room_type": item["_id"], "count": item["count"]} for item in data]
+    result = list(collection.aggregate(pipeline))
+
+    # Format data for frappe.Chart
+    labels = [item['_id'] or 'Unknown' for item in result]
+    values = [round(item['average_price'], 2) for item in result]
+
+    return {
+        "labels": labels,
+        "datasets": [
+            {
+                "name": "Avg Price (USD)",
+                "values": values
+            }
+        ]
+    }
