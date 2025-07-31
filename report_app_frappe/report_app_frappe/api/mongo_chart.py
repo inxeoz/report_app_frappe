@@ -7,7 +7,7 @@ from pymongo import MongoClient
 def demofunc():
     return "HII data from demo function"
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_mongo_chart_data():
     client = MongoClient("mongodb://localhost:27017/")
     db = client["sample_airbnb"]
