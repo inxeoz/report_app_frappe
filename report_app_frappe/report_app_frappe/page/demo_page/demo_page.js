@@ -84,4 +84,12 @@ frappe.pages['demo-page'].on_page_load = function(wrapper) {
             }
         }
     });
+
+
+    //
+
+    $(`  <div class="my-block" style="padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+    <h3>MongoDB Results</h3>
+    <div id="mongo-results">Loading...</div>
+  </div>`).appendTo(page.body);
 };
