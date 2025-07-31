@@ -1,6 +1,12 @@
 import frappe
 from pymongo import MongoClient
 
+# http://localhost:8000/api/method/report_app_frappe.report_app_frappe.api.mongo_chart.demofunc
+
+@frappe.whitelist(allow_guest=True)
+def demofunc():
+    return "HII data from demo function"
+
 @frappe.whitelist()
 def get_mongo_chart_data():
     client = MongoClient("mongodb://localhost:27017/")
