@@ -7,6 +7,12 @@ frappe.pages['demo-page'].on_page_load = function(wrapper) {
 
     page.set_indicator('Live Data', 'blue');
 
+
+    // Add shortcut
+    page.add_action_item('View Airbnb List', () => {
+        frappe.set_route('List', 'Airbnb Data');
+    });
+
     // Create layout container
     const contentWrapper = $(`
         <div style="display: flex; flex-wrap: wrap; gap: 20px;">
