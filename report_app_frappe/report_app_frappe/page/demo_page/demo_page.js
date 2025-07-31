@@ -88,8 +88,71 @@ frappe.pages['demo-page'].on_page_load = function(wrapper) {
 
     //
 
-    $(`  <div class="my-block" style="padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-    <h3>MongoDB Results</h3>
-    <div id="mongo-results">Loading...</div>
-  </div>`).appendTo(page.body);
+    // Filter Input textarea & Search Button
+    const filterInput = $(`
+        <div style="margin-top: 20px;">
+            <label for="filter-input"><strong>Enter Filter JSON:</strong></label><br>
+            <textarea id="filter-input" rows="6" style="width: 100%;" placeholder='e.g. {"name": "Cozy Apartment", "price": "100"}'></textarea>
+        </div>
+    `).appendTo(page.body);
+
+    const searchBtn = $('<button class="btn btn-primary" style="margin-top: 10px;">Search Data</button>').appendTo(page.body);
+
+    // Search Results container
+    const searchResultsContainer = $('<pre id="search-results" style="margin-top: 15px; background: #f4f4f4; padding: 15px; border-radius: 6px; max-height: 400px; overflow-y: auto;"></pre>').appendTo(page.body);
+
+
+    searchBtn.on('click', function() {
+        const filterText = $('#filter-input').val().trim();
+
+        if (!filterText) {
+            frappe.msgprint('Please enter a filter JSON.');
+            return;
+        }
+
+        let filters;
+
+        try {
+            filters = JSON.parse(filterText);
+
+            console.log(filters);
+        } catch (e) {
+            frappe.msgprint('Invalid JSON format. Please check your input.');
+            return;
+        }
+
+        frappe.call({
+            method: "report_app_frappe.report_app_frappe.api.mongo_chart.search_entity",
+            args: {
+                filters: filters
+            },
+            callback: function(r) {
+                if (r.message) {
+                    // r.message might be a list or error dict
+                    if (Array.isArray(r.message)) {
+                        if (r.message.length === 0) {
+                            searchResultsContainer.text('No matching entities found.');
+                        } else {
+                            // Pretty print JSON results
+                            searchResultsContainer.text(JSON.stringify(r.message, null, 2));
+                        }
+                    } else if (typeof r.message === 'object' && r.message.error) {
+                        searchResultsContainer.text('Error: ' + r.message.error);
+                    } else {
+                        searchResultsContainer.text(JSON.stringify(r.message, null, 2));
+                    }
+                } else {
+                    searchResultsContainer.text('No response from server.');
+                }
+            },
+            error: function(err) {
+                searchResultsContainer.text('Error: ' + (err.message || JSON.stringify(err)));
+            }
+        });
+    });
+
+
+
+
+
 };
