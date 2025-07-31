@@ -38,7 +38,7 @@ def get_mongo_chart_data():
         ]
     }
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_airbnb_listing_list():
     client = MongoClient("mongodb://localhost:27017/")
     db = client["sample_airbnb"]
@@ -92,7 +92,7 @@ client = MongoClient("mongodb://localhost:27017/")
 db = client["sample_airbnb"]
 collection = db["listingsAndReviews"]
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def search_entity(filters=None):
     if not filters:
         return {"error": "Filters must be provided"}
