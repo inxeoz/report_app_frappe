@@ -5,6 +5,10 @@ app_description = "inxeoz"
 app_email = "inxeoz@inxeoz.com"
 app_license = "mit"
 
+override_http_response_headers = {
+    "X-Frame-Options": "SAMEORIGIN"
+}
+
 # Apps
 # ------------------
 

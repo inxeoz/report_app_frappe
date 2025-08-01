@@ -140,6 +140,12 @@
       const input = document.getElementById('filter-input').value.trim();
       const results = document.getElementById('search-results');
 
+
+      function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
       if (!input) {
         alert('Please enter a filter JSON.');
         return;
@@ -153,7 +159,35 @@
         return;
       }
 
-      fetch('/api/method/report_app_frappe.report_app_frappe.api.mongo_chart.search_entity', {
+      const csrfToken = getQueryParam('csrf_token');
+
+      if (csrfToken) {
+
+        fetch('/api/method/report_app_frappe.report_app_frappe.api.mongo_chart.search_entity', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+           'X-Frappe-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify({ filters })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const response = data.message;
+        if (Array.isArray(response)) {
+          results.textContent = response.length ? JSON.stringify(response, null, 2) : 'No matching entities found.';
+        } else if (typeof response === 'object' && response.error) {
+          results.textContent = 'Error: ' + response.error;
+        } else {
+          results.textContent = JSON.stringify(response, null, 2);
+        }
+      })
+      .catch(err => {
+        results.textContent = 'Error: ' + err.message;
+      });
+      }else{
+
+          fetch('/api/method/report_app_frappe.report_app_frappe.api.mongo_chart.search_entity', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -174,6 +208,12 @@
       .catch(err => {
         results.textContent = 'Error: ' + err.message;
       });
+      }
+
+    
+
+
+
     });
   </script>
 
