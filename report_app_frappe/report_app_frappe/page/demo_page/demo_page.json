@@ -4,16 +4,21 @@
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2025-07-30 15:52:46.434229",
+ "modified": "2025-08-01 12:15:01.883886",
  "modified_by": "Administrator",
  "module": "Report App Frappe",
  "name": "demo-page",
  "owner": "Administrator",
  "page_name": "demo-page",
- "roles": [],
+ "roles": [
+  {
+   "role": "Guest"
+  }
+ ],
  "script": null,
  "standard": "Yes",
  "style": null,
  "system_page": 0,
- "title": "Hii How"
+ "title": "Hii How",
+"public" : 1
 }
