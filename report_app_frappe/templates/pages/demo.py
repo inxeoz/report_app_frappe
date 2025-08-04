@@ -46,7 +46,16 @@ from report_app_frappe.report_app_frappe.api.mongo_chart import (
     search_entity
 )
 
+from report_app_frappe.report_app_frappe.api.token_utils import verify_token
+
 def get_context(context):
+
+    token = frappe.form_dict.get("token")
+    valid, result = verify_token(token)
+
+    if not valid:
+        frappe.throw("Unauthorized: " + result)
+        return
 
     if frappe.session.user == "Guest":
         frappe.redirect(f"/login?redirect-to={frappe.request.path}")
