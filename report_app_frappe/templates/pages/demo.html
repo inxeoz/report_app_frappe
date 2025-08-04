@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
   <title>Airbnb Dashboard</title>
@@ -218,4 +218,27 @@
   </script>
 
 </body>
+</html> -->
+
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+</head>
+<body>
+
+  <div class="report-section">
+  <h3>Secure Report for {{ user }}</h3>
+  <ul>
+    {% for row in report %}
+      <li>{{ row.date }}: {{ row.value }}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+</body>
+
 </html>

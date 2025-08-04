@@ -164,23 +164,44 @@
 // };
 
 
-frappe.pages['demo-page'].on_page_load = function(wrapper) {
+// frappe.pages['demo-page'].on_page_load = function(wrapper) {
+//     const page = frappe.ui.make_app_page({
+//         parent: wrapper,
+//         title: 'Airbnb Dashboard',
+//         single_column: true
+//     });
+
+//     // Proper iframe with CSRF token passed via URL param
+//     const csrf_token = frappe.csrf_token;
+//     const iframeUrl = `/demo?csrf_token=${csrf_token}`;
+
+//     $(page.body).html(`
+//         HII Secrete data
+    
+//     `);
+// };
+
+
+frappe.pages['demo-page'].on_page_load = async function(wrapper) {
     const page = frappe.ui.make_app_page({
         parent: wrapper,
-        title: 'Airbnb Dashboard',
+        title: 'Secure Report',
         single_column: true
     });
 
-    // Proper iframe with CSRF token passed via URL param
-    const csrf_token = frappe.csrf_token;
-    const iframeUrl = `/demo?csrf_token=${csrf_token}`;
+    const res = await frappe.call({
+        method: "report_app_frappe.report_app_frappe.api.mongo_chart.secure_html"
+    });
 
-    $(page.body).html(`
-        <iframe 
-            src="${iframeUrl}" 
-            width="100%" 
-            height="800" 
-            frameborder="0"
-            style="border:0; overflow: hidden;"></iframe>
-    `);
+    $(page.body).html(res.message);
 };
+
+
+
+
+    // <iframe 
+    //         src="${iframeUrl}" 
+    //         width="100%" 
+    //         height="800" 
+    //         frameborder="0"
+    //         style="border:0; overflow: hidden;"></iframe>

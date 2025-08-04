@@ -4,7 +4,7 @@
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2025-08-01 12:15:01.883886",
+ "modified": "2025-08-04 12:42:23.608081",
  "modified_by": "Administrator",
  "module": "Report App Frappe",
  "name": "demo-page",
@@ -13,12 +13,14 @@
  "roles": [
   {
    "role": "Guest"
+  },
+  {
+   "role": "Report Manager"
   }
  ],
  "script": null,
  "standard": "Yes",
  "style": null,
  "system_page": 0,
- "title": "Hii How",
-"public" : 1
+ "title": "Hii How"
 }

@@ -134,3 +134,26 @@ def search_entity(filters=None):
     except PyMongoError as e:
         return {"error": f"Database error: {str(e)}"}
 
+
+#http://localhost:8000/api/method/report_app_frappe.report_app_frappe.api.mongo_chart.secure_html
+@frappe.whitelist(allow_guest=True)
+def secure_html():
+    # if frappe.session.user == "Guest":
+    #     frappe.throw(_("Login required"))
+
+    report_data = get_internal_report()
+
+    #return "HII"
+
+    return frappe.render_template("report_app_frappe/templates/includes/secure_block.html", {
+        "user": frappe.session.user,
+        "report": report_data
+    })
+
+
+def get_internal_report():
+    return [
+        {"date": "2025-08-01", "value": 130},
+        {"date": "2025-08-02", "value": 170},
+    ]
+
