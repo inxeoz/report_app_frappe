@@ -36,6 +36,7 @@
 #         {"date": "2025-08-02", "value": 170},
 #     ]
 #     return context
+
 import frappe
 import json
 
@@ -46,6 +47,10 @@ from report_app_frappe.report_app_frappe.api.mongo_chart import (
 )
 
 def get_context(context):
+
+    if frappe.session.user == "Guest":
+        frappe.redirect(f"/login?redirect-to={frappe.request.path}")
+
     context.user = frappe.session.user
 
     # Chart Data
