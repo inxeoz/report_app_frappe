@@ -107,13 +107,13 @@ from report_app_frappe.report_app_frappe.api.token_utils import verify_token
 
 def get_context(context):
 
-    if frappe.session.user == "Guest":
-        frappe.throw("Login required")
-    user = frappe.session.user
-
 
     if frappe.session.user == "Guest":
         frappe.redirect(f"/login?redirect-to={frappe.request.path}")
+
+    if frappe.session.user == "Guest":
+        frappe.throw("Login required")
+    user = frappe.session.user
 
     filters_json = frappe.form_dict.get("filters")
     context.user = frappe.session.user
