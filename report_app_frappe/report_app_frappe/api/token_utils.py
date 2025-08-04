@@ -31,3 +31,17 @@ def verify_token(token: str, max_age_seconds=300):
 
     except Exception as e:
         return False, f"Invalid token: {str(e)}"
+
+
+import time
+import hmac
+import base64
+from hashlib import sha256
+
+def generate_token(user: str, secret: str) -> str:
+    timestamp = int(time.time())
+    data = f"{user}:{timestamp}"
+    hmac_digest = hmac.new(secret.encode(), data.encode(), sha256).hexdigest()
+    token_str = f"{user}:{timestamp}:{hmac_digest}"
+    token_b64 = base64.b64encode(token_str.encode()).decode()
+    return token_b64

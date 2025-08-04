@@ -134,24 +134,34 @@ def search_entity(filters=None):
 
 
 #http://localhost:8000/api/method/report_app_frappe.report_app_frappe.api.mongo_chart.secure_html
-@frappe.whitelist(allow_guest=True)
+
+
+# report_app_frappe/api/mongo_chart.py
+import base64, hmac, time
+from hashlib import sha256
+import frappe
+
+@frappe.whitelist()
 def secure_html():
-    # if frappe.session.user == "Guest":
-    #     frappe.throw(_("Login required"))
+    secret = frappe.conf.get("iframe_secret")
+    user = frappe.session.user
+    timestamp = int(time.time())
+    data = f"{user}:{timestamp}"
+    hmac_hash = hmac.new(secret.encode(), data.encode(), sha256).hexdigest()
+    token = base64.b64encode(f"{user}:{timestamp}:{hmac_hash}".encode()).decode()
 
-    report_data = get_internal_report()
+    iframe_url = f"https://my-next-app.com/viewer?token={token}"
 
-    #return "HII"
-
-    return frappe.render_template("report_app_frappe/templates/includes/secure_block.html", {
-        "user": frappe.session.user,
-        "report": report_data
-    })
-
-
-def get_internal_report():
-    return [
-        {"date": "2025-08-01", "value": 130},
-        {"date": "2025-08-02", "value": 170},
-    ]
+    html = f"""
+    <div style="padding: 2rem; font-family: sans-serif;">
+        <h2>Embedded Secure Viewer</h2>
+        <iframe
+            src="{iframe_url}"
+            width="100%"
+            height="700"
+            style="border: 1px solid #ccc; border-radius: 8px;"
+        ></iframe>
+    </div>
+    """
+    return {"message": html}
 

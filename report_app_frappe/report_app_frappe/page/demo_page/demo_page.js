@@ -1,208 +1,56 @@
-// frappe.pages['demo-page'].on_page_load = function(wrapper) {
-//     const page = frappe.ui.make_app_page({
-//         parent: wrapper,
-//         title: 'Airbnb Dashboard',
-//         single_column: true
-//     });
 
-//     page.set_indicator('Live Data', 'blue');
-
-
-//     // Add shortcut
-//     page.add_action_item('View Airbnb List', () => {
-//         frappe.set_route('List', 'Airbnb Data');
-//     });
-
-//     // Create layout container
-//     const contentWrapper = $(`
-//         <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-//             <div id="airbnb-chart" style="flex: 1 1 60%; height: 300px;">
-//                 <p>Loading chart...</p>
-//             </div>
-//             <div style="flex: 1 1 35%;">
-//                 <div style="max-height: 300px; overflow-y: auto; border: 1px solid #d1d8dd; padding: 15px; border-radius: 6px; background-color: #f9f9f9;">
-//                     <h4 style="margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Available Listings</h4>
-//                     <ul id="airbnb-list" style="list-style: none; padding-left: 0; margin: 0;">
-//                         <li>Loading listings...</li>
-//                     </ul>
-//                 </div>
-//             </div>
-//         </div>
-//     `).appendTo(page.body);
-
-//     // Refresh Button
-//     const refreshBtn = $('<button class="btn btn-sm btn-primary" style="margin-top: 20px;">Refresh Data</button>').appendTo(page.body);
-//     refreshBtn.on('click', function () {
-//         location.reload();
-//     });
-
-//     // Fetch chart data
-//     frappe.call({
-//         method: "report_app_frappe.report_app_frappe.api.mongo_chart.get_mongo_chart_data",
-//         callback: function(r) {
-//             if (r.message) {
-//                 $("#airbnb-chart").empty();  // Clear loading text
-//                 new frappe.Chart("#airbnb-chart", {
-//                     title: "Average Airbnb Prices by Suburb",
-//                     data: r.message,
-//                     type: 'bar',
-//                     height: 300,
-//                     colors: ['#5E64FF'],
-//                     barOptions: {
-//                         spaceRatio: 0.5
-//                     },
-//                     tooltipOptions: {
-//                         formatTooltipY: d => `$${d.toFixed(2)}`
-//                     }
-//                 });
-//             }
-//         }
-//     });
-
-//     // Fetch listing data
-//     frappe.call({
-//         method: "report_app_frappe.report_app_frappe.api.mongo_chart.get_airbnb_listing_list",
-//         callback: function(r) {
-//             const list = r.message || [];
-//             const listContainer = $('#airbnb-list');
-//             listContainer.empty();
-
-//             if (list.length === 0) {
-//                 listContainer.append("<li>No listings found.</li>");
-//             } else {
-//                 list.forEach(item => {
-//                     listContainer.append(`
-//                         <li style="
-//                             margin-bottom: 12px;
-//                             padding: 10px;
-//                             border: 1px solid #e2e2e2;
-//                             border-radius: 5px;
-//                             background-color: #ffffff;
-//                             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-//                             transition: box-shadow 0.2s ease;
-//                         " onmouseover="this.style.boxShadow='0 4px 10px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
-//                             <strong style="font-size: 14px;">${item.name || "Unnamed"}</strong><br>
-//                             <span style="color: #6c757d;">${item.address || 'Unknown Location'}</span><br>
-//                             <span style="font-weight: 500;">Price: $${item.price || 'N/A'}</span>
-//                         </li>
-//                     `);
-//                 });
-//             }
-//         }
-//     });
-
-
-//     //
-
-//     // Filter Input textarea & Search Button
-//     const filterInput = $(`
-//         <div style="margin-top: 20px;">
-//             <label for="filter-input"><strong>Enter Filter JSON:</strong></label><br>
-//             <textarea id="filter-input" rows="6" style="width: 100%;" placeholder='e.g. {"name": "Cozy Apartment", "price": "100"}'></textarea>
-//         </div>
-//     `).appendTo(page.body);
-
-//     const searchBtn = $('<button class="btn btn-primary" style="margin-top: 10px;">Search Data</button>').appendTo(page.body);
-
-//     // Search Results container
-//     const searchResultsContainer = $('<pre id="search-results" style="margin-top: 15px; background: #f4f4f4; padding: 15px; border-radius: 6px; max-height: 400px; overflow-y: auto;"></pre>').appendTo(page.body);
-
-
-//     searchBtn.on('click', function() {
-//         const filterText = $('#filter-input').val().trim();
-
-//         if (!filterText) {
-//             frappe.msgprint('Please enter a filter JSON.');
-//             return;
-//         }
-
-//         let filters;
-
-//         try {
-//             filters = JSON.parse(filterText);
-
-//             console.log(filters);
-//         } catch (e) {
-//             frappe.msgprint('Invalid JSON format. Please check your input.');
-//             return;
-//         }
-
-//         frappe.call({
-//             method: "report_app_frappe.report_app_frappe.api.mongo_chart.search_entity",
-//             args: {
-//                 filters: filters
-//             },
-//             callback: function(r) {
-//                 if (r.message) {
-//                     // r.message might be a list or error dict
-//                     if (Array.isArray(r.message)) {
-//                         if (r.message.length === 0) {
-//                             searchResultsContainer.text('No matching entities found.');
-//                         } else {
-//                             // Pretty print JSON results
-//                             searchResultsContainer.text(JSON.stringify(r.message, null, 2));
-//                         }
-//                     } else if (typeof r.message === 'object' && r.message.error) {
-//                         searchResultsContainer.text('Error: ' + r.message.error);
-//                     } else {
-//                         searchResultsContainer.text(JSON.stringify(r.message, null, 2));
-//                     }
-//                 } else {
-//                     searchResultsContainer.text('No response from server.');
-//                 }
-//             },
-//             error: function(err) {
-//                 searchResultsContainer.text('Error: ' + (err.message || JSON.stringify(err)));
-//             }
-//         });
-//     });
-
-
-
-
-
-// };
 
 
 // frappe.pages['demo-page'].on_page_load = function(wrapper) {
+//     const user = frappe.session.user;
+//     const secret = 'hardcoded-or-pulled-from-conf'; // ⚠️ Avoid hardcoding
+//     const token = generateToken(user, secret);
+
 //     const page = frappe.ui.make_app_page({
 //         parent: wrapper,
-//         title: 'Airbnb Dashboard',
+//         title: 'Secure Report',
 //         single_column: true
 //     });
 
-//     // Proper iframe with CSRF token passed via URL param
-//     const csrf_token = frappe.csrf_token;
-//     const iframeUrl = `/demo?csrf_token=${csrf_token}`;
+//     const iframeHTML = `
+//         <iframe
+//             src="https://my-next-app.com/viewer?token=${token}"
+//             width="100%"
+//             height="700"
+//             style="border: 1px solid #ccc; border-radius: 8px;"
+//         ></iframe>
+//     `;
 
-//     $(page.body).html(`
-//         HII Secrete data
-    
-//     `);
+//     $(page.body).html(iframeHTML);
 // };
 
 
-frappe.pages['demo-page'].on_page_load = async function(wrapper) {
-    const page = frappe.ui.make_app_page({
-        parent: wrapper,
-        title: 'Secure Report',
-        single_column: true
-    });
 
-    const res = await frappe.call({
-        method: "report_app_frappe.report_app_frappe.api.mongo_chart.secure_html"
-    });
 
-    $(page.body).html(res.message);
+
+frappe.pages['demo-page'].on_page_load = async function (wrapper) {
+	const page = frappe.ui.make_app_page({
+		parent: wrapper,
+		title: 'Secure Report',
+		single_column: true,
+	});
+
+	const $container = $('<div id="demo-report-wrapper" style="padding: 2rem;"></div>');
+	$container.appendTo(page.body);
+
+	try {
+		const res = await frappe.call({
+			method: "report_app_frappe.report_app_frappe.api.demo_api.render_demo_html",
+		});
+
+		if (res.message.html) {
+			$container.html(res.message.html);
+		} else {
+			$container.html(`<div class="text-muted">⚠ No content received from server.</div>`);
+		}
+	} catch (err) {
+		console.error("Failed to load report:", err);
+		frappe.msgprint("❌ Could not load report HTML.");
+		$container.html(`<div class="text-danger">Error: ${err.message}</div>`);
+	}
 };
-
-
-
-
-
-    // <iframe 
-    //         src="${iframeUrl}" 
-    //         width="100%" 
-    //         height="800" 
-    //         frameborder="0"
-    //         style="border:0; overflow: hidden;"></iframe>

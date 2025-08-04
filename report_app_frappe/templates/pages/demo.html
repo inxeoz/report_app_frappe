@@ -52,6 +52,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+
+    console.log("from script")
     document.addEventListener("DOMContentLoaded", function () {
         const chartData = {{ chart_data | tojson | safe }};
         const labels = chartData.labels || [];
