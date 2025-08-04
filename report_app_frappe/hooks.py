@@ -9,6 +9,12 @@ override_http_response_headers = {
     "X-Frame-Options": "SAMEORIGIN"
 }
 
+app_include_js = [
+    "/assets/report_app_frappe/js/chart.umd.js",
+    "/assets/report_app_frappe/js/chart_demo.js"
+]
+
+
 # Apps
 # ------------------
 
