@@ -1,244 +1,90 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-  <title>Airbnb Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    #airbnb-chart-container,
-    #airbnb-list-container {
-      border: 1px solid #d1d8dd;
-      border-radius: 6px;
-      background-color: #f9f9f9;
-      padding: 15px;
-    }
-    #airbnb-list li {
-      margin-bottom: 12px;
-      padding: 10px;
-      border: 1px solid #e2e2e2;
-      border-radius: 5px;
-      background-color: #ffffff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      transition: box-shadow 0.2s ease;
-    }
-    #airbnb-list li:hover {
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-  </style>
-</head>
-<body>
-
-  <h1>Airbnb Dashboard</h1>
-  <h4 style="color: blue;">Live Data</h4>
-  <button onclick="window.location.href='/app/airbnb-data'" class="btn btn-sm btn-secondary">View Airbnb List</button>
-
-  <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px;">
-    <div id="airbnb-chart-container" style="flex: 1 1 60%;">
-      <canvas id="airbnb-chart" height="300"></canvas>
+<div class="page-card">
+    <div class="page-card-head">
+        <h3>Airbnb Dashboard</h3>
+        <span class="indicator blue">Live Data</span>
+        <a class="btn btn-sm btn-secondary" href="/app/airbnb-data">View Airbnb List</a>
     </div>
-    <div id="airbnb-list-container" style="flex: 1 1 35%; max-height: 300px; overflow-y: auto;">
-      <h4>Available Listings</h4>
-      <ul id="airbnb-list" style="list-style: none; padding-left: 0;">
-        <li>Loading listings...</li>
-      </ul>
+
+    <!-- Chart -->
+    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        <div id="chart-container" style="flex: 1 1 60%; height: 300px;">
+            <canvas id="airbnbChart"></canvas>
+        </div>
+
+        <!-- Listings -->
+        <div style="flex: 1 1 35%;">
+            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #d1d8dd; padding: 15px; border-radius: 6px; background-color: #f9f9f9;">
+                <h4 style="margin-bottom: 10px;">Available Listings</h4>
+                <ul style="list-style: none; padding: 0;">
+                    {% for listing in listings %}
+                        <li style="margin-bottom: 12px; padding: 10px; border: 1px solid #e2e2e2; border-radius: 5px; background-color: #fff;">
+                            <strong>{{ listing.name or "Unnamed" }}</strong><br>
+                            <span style="color: #6c757d;">{{ listing.address or "Unknown Location" }}</span><br>
+                            <span><strong>Price:</strong> ${{ listing.price or "N/A" }}</span>
+                        </li>
+                    {% else %}
+                        <li>No listings found.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <button id="refresh-btn" class="btn btn-primary" style="margin-top: 20px;">Refresh Data</button>
+    <!-- Refresh -->
+    <a href="" class="btn btn-sm btn-primary" style="margin-top: 20px;">Refresh Data</a>
 
-  <div style="margin-top: 20px;">
-    <label for="filter-input"><strong>Enter Filter JSON:</strong></label><br>
-    <textarea id="filter-input" rows="6" style="width: 100%;" placeholder='e.g. {"name": "Cozy Apartment", "price": "100"}'></textarea>
-    <button id="search-btn" class="btn btn-primary" style="margin-top: 10px;">Search Data</button>
-  </div>
+    <!-- Filter Form -->
+    <form method="get" style="margin-top: 30px;">
+        <label><strong>Enter Filter JSON:</strong></label>
+        <textarea name="filters" rows="6" style="width: 100%;" placeholder='{"name": "Cozy Apartment"}'>{{ search_filter or "" }}</textarea>
+        <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Search Data</button>
+    </form>
 
-  <pre id="search-results" style="margin-top: 15px; background: #f4f4f4; padding: 15px; border-radius: 6px; max-height: 400px; overflow-y: auto;"></pre>
-
-  <script>
-    // Refresh page
-    document.getElementById('refresh-btn').addEventListener('click', () => location.reload());
-
-    // Load chart data
-    fetch('/api/method/report_app_frappe.report_app_frappe.api.mongo_chart.get_mongo_chart_data')
-      .then(res => res.json())
-      .then(data => {
-        const chartData = data.message;
-        const ctx = document.getElementById('airbnb-chart').getContext('2d');
-
-        if (chartData && chartData.labels && chartData.datasets?.[0]?.values) {
-          const dataset = chartData.datasets[0];
-
-          new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels: chartData.labels,
-              datasets: [{
-                label: dataset.name,
-                data: dataset.values,
-                backgroundColor: '#5E64FF'
-              }]
-            },
-            options: {
-              responsive: true,
-              plugins: {
-                title: {
-                  display: true,
-                  text: 'Average Airbnb Prices by Suburb'
-                },
-                tooltip: {
-                  callbacks: {
-                    label: function(context) {
-                      return `$${context.parsed.y.toFixed(2)}`;
-                    }
-                  }
-                }
-              },
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  title: {
-                    display: true,
-                    text: 'Price ($)'
-                  }
-                }
-              }
-            }
-          });
-        } else {
-          ctx.canvas.parentNode.innerHTML = '<p>No chart data available.</p>';
-        }
-      });
-
-    // Load listing data
-    fetch('/api/method/report_app_frappe.report_app_frappe.api.mongo_chart.get_airbnb_listing_list')
-      .then(res => res.json())
-      .then(data => {
-        const listings = data.message || [];
-        const listContainer = document.getElementById('airbnb-list');
-        listContainer.innerHTML = '';
-
-        if (listings.length === 0) {
-          listContainer.innerHTML = "<li>No listings found.</li>";
-        } else {
-          listings.forEach(item => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-              <strong style="font-size: 14px;">${item.name || "Unnamed"}</strong><br>
-              <span style="color: #6c757d;">${item.address || 'Unknown Location'}</span><br>
-              <span style="font-weight: 500;">Price: $${item.price || 'N/A'}</span>
-            `;
-            listContainer.appendChild(li);
-          });
-        }
-      });
-
-    // Search functionality
-    document.getElementById('search-btn').addEventListener('click', () => {
-      const input = document.getElementById('filter-input').value.trim();
-      const results = document.getElementById('search-results');
-
-
-      function getQueryParam(name) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(name);
-}
-
-      if (!input) {
-        alert('Please enter a filter JSON.');
-        return;
-      }
-
-      let filters;
-      try {
-        filters = JSON.parse(input);
-      } catch (e) {
-        alert('Invalid JSON format.');
-        return;
-      }
-
-      const csrfToken = getQueryParam('csrf_token');
-
-      if (csrfToken) {
-
-        fetch('/api/method/report_app_frappe.report_app_frappe.api.mongo_chart.search_entity', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-           'X-Frappe-CSRF-Token': csrfToken
-        },
-        body: JSON.stringify({ filters })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const response = data.message;
-        if (Array.isArray(response)) {
-          results.textContent = response.length ? JSON.stringify(response, null, 2) : 'No matching entities found.';
-        } else if (typeof response === 'object' && response.error) {
-          results.textContent = 'Error: ' + response.error;
-        } else {
-          results.textContent = JSON.stringify(response, null, 2);
-        }
-      })
-      .catch(err => {
-        results.textContent = 'Error: ' + err.message;
-      });
-      }else{
-
-          fetch('/api/method/report_app_frappe.report_app_frappe.api.mongo_chart.search_entity', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ filters })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const response = data.message;
-        if (Array.isArray(response)) {
-          results.textContent = response.length ? JSON.stringify(response, null, 2) : 'No matching entities found.';
-        } else if (typeof response === 'object' && response.error) {
-          results.textContent = 'Error: ' + response.error;
-        } else {
-          results.textContent = JSON.stringify(response, null, 2);
-        }
-      })
-      .catch(err => {
-        results.textContent = 'Error: ' + err.message;
-      });
-      }
-
-    
-
-
-
-    });
-  </script>
-
-</body>
-</html> -->
-
-
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
-</head>
-<body>
-
-  <div class="report-section">
-  <h3>Secure Report for {{ user }}</h3>
-  <ul>
-    {% for row in report %}
-      <li>{{ row.date }}: {{ row.value }}</li>
-    {% endfor %}
-  </ul>
+    <!-- Search Result -->
+    {% if search_error %}
+        <div style="color: red; margin-top: 10px;"><strong>Error:</strong> {{ search_error }}</div>
+    {% elif search_results %}
+        <pre style="margin-top: 15px; background: #f4f4f4; padding: 15px; border-radius: 6px; max-height: 400px; overflow-y: auto;">
+{{ search_results | tojson(indent=2) }}
+        </pre>
+    {% endif %}
 </div>
 
-</body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const chartData = {{ chart_data | tojson | safe }};
+        const labels = chartData.labels || [];
+        const datasets = (chartData.datasets || []).map(ds => ({
+            label: ds.name,
+            data: ds.values,
+            backgroundColor: '#5E64FF'
+        }));
 
-</html>
+        new Chart(document.getElementById('airbnbChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const val = context.raw;
+                                return `$${val.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>

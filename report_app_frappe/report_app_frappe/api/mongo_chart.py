@@ -62,10 +62,11 @@ def get_airbnb_listing_list():
 
 from bson import Decimal128
 from decimal import Decimal
+from datetime import datetime
 
 def convert_bson_types(doc):
     """
-    Recursively convert BSON Decimal128 and other unsupported
+    Recursively convert BSON Decimal128, datetime, ObjectId, and other unsupported
     types into JSON serializable types.
     """
     if isinstance(doc, dict):
@@ -73,11 +74,13 @@ def convert_bson_types(doc):
     elif isinstance(doc, list):
         return [convert_bson_types(i) for i in doc]
     elif isinstance(doc, Decimal128):
-        # Convert Decimal128 to float (or str if precision matters)
-        dec = doc.to_decimal()
-        return float(dec)  # or str(dec) if you want string
+        return float(doc.to_decimal())
     elif isinstance(doc, Decimal):
         return float(doc)
+    elif isinstance(doc, datetime):
+        return doc.isoformat()  # e.g., "2025-08-04T14:00:00"
+    elif hasattr(doc, '__str__'):
+        return str(doc)
     else:
         return doc
 
@@ -116,19 +119,14 @@ def search_entity(filters=None):
     #         return {"error": "Invalid _id format"}
 
     try:
-        # Perform find_one instead of find
+
         doc = collection.find_one(filters)
 
         if not doc:
             return {"error": "No matching entity found."}
 
-        # Convert ObjectId to string for JSON serialization
-        if "_id" in doc:
-            doc["_id"] = str(doc["_id"])
-            doc = convert_bson_types(doc)
-
-
-
+        # Convert all types for safe JSON rendering
+        doc = convert_bson_types(doc)
         return doc
 
     except PyMongoError as e:
