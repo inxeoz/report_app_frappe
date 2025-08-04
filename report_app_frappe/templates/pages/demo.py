@@ -102,26 +102,19 @@
 
 import frappe
 import json
-
-
-from report_app_frappe.report_app_frappe.api.demo_data import get_demo_context_data
-
-
+from report_app_frappe.report_app_frappe.api.mongo_demo import get_demo_context_data
 from report_app_frappe.report_app_frappe.api.token_utils import verify_token
 
 def get_context(context):
-
     token = frappe.form_dict.get("token")
-    valid, result = verify_token(token)
 
+    valid, result = verify_token(token)
     if not valid:
         frappe.throw("Unauthorized: " + result)
-        return
 
     if frappe.session.user == "Guest":
         frappe.redirect(f"/login?redirect-to={frappe.request.path}")
 
-    context.user = frappe.session.user
     filters_json = frappe.form_dict.get("filters")
+    context.user = frappe.session.user
     context.update(get_demo_context_data(filters_json))
-    return context
