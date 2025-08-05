@@ -1,7 +1,7 @@
 {
  "allow_comments": 0,
  "allow_delete": 0,
- "allow_edit": 0,
+ "allow_edit": 1,
  "allow_incomplete": 0,
  "allow_multiple": 0,
  "allow_print": 0,
@@ -19,9 +19,9 @@
  "idx": 0,
  "is_standard": 1,
  "list_columns": [],
- "login_required": 0,
+ "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2025-08-05 11:43:31.090258",
+ "modified": "2025-08-05 13:03:16.399798",
  "modified_by": "Administrator",
  "module": "Report App Frappe",
  "name": "demo-doc-form",
@@ -72,6 +72,33 @@
    "read_only": 0,
    "reqd": 0,
    "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "section_break_g5pi",
+   "fieldtype": "Section Break",
+   "hidden": 0,
+   "max_length": 0,
+   "max_value": 0,
+   "precision": "",
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "fieldname": "table_vyks",
+   "fieldtype": "Table",
+   "hidden": 0,
+   "label": "",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "DemoDocTable",
+   "precision": "",
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
   }
- ]
+ ],
+ "website_sidebar": ""
 }
